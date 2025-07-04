@@ -33,7 +33,6 @@ export const signin = createAsyncThunk("auth/signin", async (data) => {
             error: "Something went wrong",
         });
         return await response;
-
     } catch (error) {
         if (error?.response?.data?.err){
             toast.error(error?.response?.data?.err);
@@ -46,20 +45,28 @@ export const signin = createAsyncThunk("auth/signin", async (data) => {
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        logout: (state) => {
+            state.isLoggedIn = false;
+            state.token = '';
+            state.username = '';
+            localStorage.clear();
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(signin.fulfilled, (state, action)=>{
             if(action?.payload?.data){
                 state.isLoggedIn = (action?.payload?.data?.data !== undefined);
-                state.username = action?.payload?.data?.username;
-                state.token = action?.payload?.data?.token;
+                state.username = action?.payload?.data?.data?.username;
+                state.token = action?.payload?.data?.data?.token;
                 localStorage.setItem("isLoggedIn", (action?.payload?.data?.data !== undefined));
-                localStorage.setItem("username", action?.payload?.data?.username);
-                localStorage.setItem("token", action?.payload?.data?.token);
+                localStorage.setItem("username", action?.payload?.data?.data?.username);
+                localStorage.setItem("token", action?.payload?.data?.data?.token);
             }
-        })
-
+        });
     }
 });
+
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;
